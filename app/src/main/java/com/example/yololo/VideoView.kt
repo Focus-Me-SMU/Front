@@ -187,7 +187,7 @@ class VideoView : AppCompatActivity() {
 
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("frame", "frame.jpg",
+                .addFormDataPart("frame_video", "frame.jpg",
                     byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull()))
                 .build()
 
