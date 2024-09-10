@@ -32,7 +32,6 @@
         app:layout_constraintStart_toStartOf="parent"
         />
 
-
     <VideoView
         android:id="@+id/videoView"
         android:layout_width="0dp"
@@ -53,7 +52,6 @@
         app:layout_constraintBottom_toBottomOf="@id/videoView"
         app:layout_constraintEnd_toEndOf="@+id/videoView"
         tools:ignore="UseAppTint" />
-
 
     <Button
         android:id="@+id/selectVideo"

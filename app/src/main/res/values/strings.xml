@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Yololo</string>
     <string name="sentence">The rapid advancement of artificial intelligence has revolutionized various industries, prompting both excitement and concern among experts and the general public alike. Thank you.</string>
+    <string name="server_url">http://192.168.200.15:5000/upload-frame</string>
 </resources>

@@ -139,7 +139,7 @@ class Camera : AppCompatActivity() {
                 .build()
 
             val request = Request.Builder()
-                .url("http://172.16.152.197:5000/upload-frame")
+                .url("http://192.168.200.15:5000/upload-frame")
                 .post(requestBody)
                 .build()
 
