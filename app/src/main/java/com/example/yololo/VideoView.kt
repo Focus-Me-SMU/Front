@@ -49,6 +49,7 @@ class VideoView : AppCompatActivity() {
     private var isFullScreen = false
     private lateinit var originalVideoViewParams: ViewGroup.LayoutParams
     private lateinit var originalVideoContainerParams: ViewGroup.LayoutParams
+    private var cameraProvider: ProcessCameraProvider? = null
 
     private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -74,8 +75,12 @@ class VideoView : AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         setupVideoView()
-        binding.viewFinder.visibility = View.GONE
         binding.full.setColorFilter(R.color.basic)
+        binding.viewFinder.layoutParams.width = 1
+        binding.viewFinder.layoutParams.height = 1
+        binding.viewFinder.requestLayout()
+        binding.videoView.visibility = View.VISIBLE
+        binding.videoView.bringToFront()
     }
 
     private fun setupVideoView() {
@@ -104,7 +109,7 @@ class VideoView : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            cameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
                 .build()
@@ -124,8 +129,8 @@ class VideoView : AppCompatActivity() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                cameraProvider?.unbindAll()
+                cameraProvider?.bindToLifecycle(
                     this, cameraSelector, preview, imageAnalyzer)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -133,10 +138,25 @@ class VideoView : AppCompatActivity() {
 
         }, ContextCompat.getMainExecutor(this))
     }
+    private fun stopCamera() {
+        cameraProvider?.unbindAll()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (allPermissionsGranted()) {
+            startCamera()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopCamera()
+    }
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 100 // milliseconds, 10 frames per second
+        private val processingInterval = 5000 // milliseconds, 10 frames per second
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()
@@ -187,12 +207,15 @@ class VideoView : AppCompatActivity() {
 
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("frame_video", "frame.jpg",
+                .addFormDataPart("frame", "frame.jpg",
                     byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull()))
+                .addFormDataPart("width", bitmap.width.toString())
+                .addFormDataPart("height", bitmap.height.toString())
+                .addFormDataPart("format", "jpeg")
                 .build()
 
             val request = Request.Builder()
-                .url("http://172.16.152.197:5000/upload-frame")
+                .url(getString(R.string.server_url)) // IP 주소를 리소스 파일로 이동
                 .post(requestBody)
                 .build()
 

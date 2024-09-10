@@ -20,6 +20,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.yololo.VideoView.Companion
 import com.example.yololo.databinding.ActivitySentenceReadingBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ class Sentence_Reading : AppCompatActivity() {
     private lateinit var binding: ActivitySentenceReadingBinding
     private lateinit var cameraExecutor: ExecutorService
     private val client = OkHttpClient()
+    private var cameraProvider: ProcessCameraProvider? = null
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +56,14 @@ class Sentence_Reading : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        binding.viewFinderSentence.visibility = View.GONE
+        // 카메라 프리뷰 크기 조정
+        binding.viewFinderSentence.layoutParams.width = 1
+        binding.viewFinderSentence.layoutParams.height = 1
+        binding.viewFinderSentence.requestLayout()
+
+        // 다른 뷰를 앞으로 가져오기 (카메라 프리뷰 숨기기)
+        binding.sentence.visibility = View.VISIBLE
+        binding.sentence.bringToFront()
 
         binding.back.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -65,7 +74,7 @@ class Sentence_Reading : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            cameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
                 .build()
@@ -85,8 +94,8 @@ class Sentence_Reading : AppCompatActivity() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                cameraProvider?.unbindAll()
+                cameraProvider?.bindToLifecycle(
                     this, cameraSelector, preview, imageAnalyzer)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -94,10 +103,26 @@ class Sentence_Reading : AppCompatActivity() {
 
         }, ContextCompat.getMainExecutor(this))
     }
+    private fun stopCamera() {
+        cameraProvider?.unbindAll()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (allPermissionsGranted()) {
+            startCamera()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopCamera()
+    }
+
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 100 // 밀리초 단위, 초당 10프레임
+        private val processingInterval = 5000 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()
@@ -148,12 +173,15 @@ class Sentence_Reading : AppCompatActivity() {
 
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("frame_sentence", "frame.jpg",
+                .addFormDataPart("frame", "frame.jpg",
                     byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull()))
+                .addFormDataPart("width", bitmap.width.toString())
+                .addFormDataPart("height", bitmap.height.toString())
+                .addFormDataPart("format", "jpeg")
                 .build()
 
             val request = Request.Builder()
-                .url("http://172.16.152.197:5000/upload-frame")
+                .url(getString(R.string.server_url))
                 .post(requestBody)
                 .build()
 
@@ -196,7 +224,7 @@ class Sentence_Reading : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraXApp"
+        private const val TAG = "CameraXApp2"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
