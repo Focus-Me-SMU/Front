@@ -1,8 +1,6 @@
 package com.example.yololo
 
 import android.Manifest
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -27,11 +25,10 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.yololo.VideoView.Companion
-import com.example.yololo.databinding.ActivitySentenceReadingBinding
+import com.example.yololo.databinding.ActivitySentenceReading2Binding
+import com.example.yololo.databinding.ActivitySentenceReading3Binding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable.start
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -44,8 +41,8 @@ import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class Sentence_Reading : AppCompatActivity() {
-    private lateinit var binding: ActivitySentenceReadingBinding
+class sentence_reading3 : AppCompatActivity() {
+    private lateinit var binding: ActivitySentenceReading3Binding
     private lateinit var cameraExecutor: ExecutorService
     private val client = OkHttpClient()
     private var cameraProvider: ProcessCameraProvider? = null
@@ -53,11 +50,11 @@ class Sentence_Reading : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySentenceReadingBinding.inflate(layoutInflater)
+        binding = ActivitySentenceReading3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.nextBtn.isEnabled = false
-        binding.nextBtn.alpha = 0.5f
+        binding.nextBtn3.isEnabled = false
+        binding.nextBtn3.alpha = 0.5f
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -77,13 +74,13 @@ class Sentence_Reading : AppCompatActivity() {
         binding.sentence.visibility = View.VISIBLE
         binding.sentence.bringToFront()
 
-        binding.back.setOnClickListener {
+        binding.back3.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.nextBtn.setOnClickListener {
+        binding.nextBtn3.setOnClickListener {
             sendClickNextToServer("버튼 클릭")
-            startActivity(Intent(this, sentence_reading2::class.java))
+            startActivity(Intent(this, statistic::class.java))
         }
     }
 
@@ -231,7 +228,9 @@ class Sentence_Reading : AppCompatActivity() {
                     }
                     val message = jsonObject.optString("message", "")
                     if (message == "next") {
+                        Log.d(TAG, "Next message received, attempting to enable button")
                         withContext(Dispatchers.Main) {
+                            Log.d(TAG, "Now on main thread, calling enableNextButton")
                             enableNextButton()
                         }
                     }
@@ -253,9 +252,9 @@ class Sentence_Reading : AppCompatActivity() {
 
     private fun enableNextButton() {
         Log.d(TAG, "Enabling next button")
-        binding.nextBtn.isEnabled = true
-        binding.nextBtn.alpha = 1.0f
-        binding.nextBtn.setBackgroundColor(Color.parseColor("#FF636261"))
+        binding.nextBtn3.isEnabled = true
+        binding.nextBtn3.alpha = 1.0f
+        binding.nextBtn3.setBackgroundColor(Color.parseColor("#FF636261"))
 
         Log.d(TAG, "Next button enabled and color changed")
     }
@@ -298,14 +297,14 @@ class Sentence_Reading : AppCompatActivity() {
                 val response = client.newCall(request).execute()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        Toast.makeText(this@Sentence_Reading, "클릭 정보가 서버로 전송되었습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@sentence_reading3, "클릭 정보가 서버로 전송되었습니다.", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this@Sentence_Reading, "서버 전송 실패: ${response.code}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@sentence_reading3, "서버 전송 실패: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@Sentence_Reading, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@sentence_reading3, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

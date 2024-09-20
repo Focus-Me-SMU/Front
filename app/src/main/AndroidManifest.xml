@@ -31,6 +31,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".statistic"
+            android:exported="false" />
+        <activity
+            android:name=".sentence_reading3"
+            android:exported="false" />
+        <activity
+            android:name=".sentence_reading2"
+            android:exported="false" />
+        <activity
             android:name=".Camera"
             android:exported="false" />
         <activity
