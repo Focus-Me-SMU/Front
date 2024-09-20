@@ -5,12 +5,16 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.YuvImage
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -31,6 +35,7 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -122,7 +127,7 @@ class Sentence_Reading : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 5000 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 2000 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()
@@ -165,6 +170,20 @@ class Sentence_Reading : AppCompatActivity() {
         }
     }
 
+    private fun showCustomToast(message: String, textColor: Int = Color.WHITE, backgroundColor: Int = Color.BLACK) {
+        val layout = layoutInflater.inflate(R.layout.toast, null)
+        val textView = layout.findViewById<TextView>(R.id.custom_toast_message)
+        textView.text = message
+        textView.setTextColor(textColor)
+        (textView.background as GradientDrawable).setColor(backgroundColor)
+
+        val toast = Toast(applicationContext)
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = layout
+        toast.show()
+    }
+
     private fun sendBitmapToServer(bitmap: Bitmap) {
         CoroutineScope(Dispatchers.IO).launch {
             val stream = ByteArrayOutputStream()
@@ -188,7 +207,25 @@ class Sentence_Reading : AppCompatActivity() {
             try {
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
-                    Log.d(TAG, "Image sent successfully")
+                    val responseBody = response.body?.string()
+                    Log.d(TAG, "Received response: $responseBody")
+                    val jsonObject = JSONObject(responseBody ?: "{}")
+
+                    val showToast = jsonObject.optBoolean("show_toast", false)
+                    if (showToast) {
+                        val toastMessage = jsonObject.optString("toast_message", "")
+                        withContext(Dispatchers.Main) {
+                            showCustomToast(toastMessage, Color.BLACK, Color.YELLOW)
+                        }
+                    }
+
+                    // sentence_count 업데이트 (UI 업데이트 등)
+                    val sentenceCount = jsonObject.optInt("sentence_count", -1)
+                    if (sentenceCount != -1) {
+                        withContext(Dispatchers.Main) {
+                            updateSentenceCount(sentenceCount)
+                        }
+                    }
                 } else {
                     Log.e(TAG, "Failed to send image: ${response.code}")
                 }
@@ -196,6 +233,12 @@ class Sentence_Reading : AppCompatActivity() {
                 Log.e(TAG, "Error sending image", e)
             }
         }
+    }
+
+    private fun updateSentenceCount(count: Int) {
+        // TODO: UI에 sentence_count 반영하는 로직 구현
+        // 예: binding.sentenceCountTextView.text = "Sentence Count: $count"
+        Log.d(TAG, "Updated sentence count: $count")
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

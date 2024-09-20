@@ -36,9 +36,12 @@
             android:layout_height="250dp"
             android:layout_margin="16dp"
             app:cardCornerRadius="16dp"
+            android:clickable="true"
+            android:focusable="true"
             app:cardElevation="8dp">
 
             <LinearLayout
+                android:id="@+id/sentence_lay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#C6E1EC"
