@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.yololo.databinding.ActivitySentenceReading2Binding
 import com.example.yololo.databinding.ActivitySentenceReading3Binding
+import com.example.yololo.sentence_reading2.Companion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +47,7 @@ class sentence_reading3 : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private val client = OkHttpClient()
     private var cameraProvider: ProcessCameraProvider? = null
+    private var isImageAnalysisActive = true
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +81,8 @@ class sentence_reading3 : AppCompatActivity() {
         }
 
         binding.nextBtn3.setOnClickListener {
+            isImageAnalysisActive = false  // 이미지 분석 중지
+            stopCamera()  // 카메라 중지
             sendClickNextToServer("버튼 클릭")
             startActivity(Intent(this, statistic::class.java))
         }
@@ -138,6 +142,11 @@ class sentence_reading3 : AppCompatActivity() {
         private val processingInterval = 500 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
+            if (!isImageAnalysisActive) {  // 이미지 분석 활성화 상태 확인
+                image.close()
+                return
+            }
+
             val currentTimestamp = System.currentTimeMillis()
             if (currentTimestamp - lastProcessedTimestamp < processingInterval) {
                 image.close()
@@ -193,6 +202,8 @@ class sentence_reading3 : AppCompatActivity() {
     }
 
     private fun sendBitmapToServer(bitmap: Bitmap) {
+        if (!isImageAnalysisActive) return
+
         CoroutineScope(Dispatchers.IO).launch {
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -227,10 +238,10 @@ class sentence_reading3 : AppCompatActivity() {
                         }
                     }
                     val message = jsonObject.optString("message", "")
+                    Log.d(TAG, "Received message: $message")
                     if (message == "next") {
-                        Log.d(TAG, "Next message received, attempting to enable button")
+                        Log.d(TAG, "Next message received, enabling button")
                         withContext(Dispatchers.Main) {
-                            Log.d(TAG, "Now on main thread, calling enableNextButton")
                             enableNextButton()
                         }
                     }
@@ -289,20 +300,43 @@ class sentence_reading3 : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val requestBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
             val request = Request.Builder()
-                .url("${getString(R.string.server_url)}/click_next")  // 서버의 클릭 이벤트 처리 엔드포인트
+                .url("${getString(R.string.server_url)}/click_end")
                 .post(requestBody)
                 .build()
 
             try {
                 val response = client.newCall(request).execute()
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@sentence_reading3, "클릭 정보가 서버로 전송되었습니다.", Toast.LENGTH_SHORT).show()
-                    } else {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    Log.d(TAG, "Received response: $responseBody")
+                    val jsonObject = JSONObject(responseBody ?: "{}")
+
+                    // 서버로부터 받은 통계 데이터 처리
+                    val allFrameCount = jsonObject.optInt("all_frame_count", 0)
+                    val lookForwardCount = jsonObject.optInt("Look_Forward_count", 0)
+                    val awakeCount = jsonObject.optInt("awake_count", 0)
+                    val drowsyCount = jsonObject.optInt("drowsy_count", 0)
+                    val yellingCount = jsonObject.optInt("yelling_count", 0)
+
+                    withContext(Dispatchers.Main) {
+                        // 통계 데이터를 다음 액티비티로 전달
+                        val intent = Intent(this@sentence_reading3, statistic::class.java).apply {
+                            putExtra("ALL_FRAME_COUNT", allFrameCount)
+                            putExtra("LOOK_FORWARD_COUNT", lookForwardCount)
+                            putExtra("AWAKE_COUNT", awakeCount)
+                            putExtra("DROWSY_COUNT", drowsyCount)
+                            putExtra("YELLING_COUNT", yellingCount)
+                        }
+                        startActivity(intent)
+                    }
+                } else {
+                    Log.e(TAG, "Failed to send click end event: ${response.code}")
+                    withContext(Dispatchers.Main) {
                         Toast.makeText(this@sentence_reading3, "서버 전송 실패: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "Error sending click end event", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@sentence_reading3, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -316,7 +350,7 @@ class sentence_reading3 : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraXApp2"
+        private const val TAG = "CameraXApp3"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }

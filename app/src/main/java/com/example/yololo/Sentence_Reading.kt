@@ -317,7 +317,7 @@ class Sentence_Reading : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraXApp2"
+        private const val TAG = "CameraXApp"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }

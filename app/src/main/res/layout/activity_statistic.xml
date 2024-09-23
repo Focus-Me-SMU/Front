@@ -8,5 +8,39 @@
     android:fitsSystemWindows="true"
     tools:context=".statistic">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/allFrameCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            tools:ignore="MissingConstraints" />
+        <TextView
+            android:id="@+id/lookForwardCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            tools:ignore="MissingConstraints" />
+        <TextView
+            android:id="@+id/awakeCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            tools:ignore="MissingConstraints" />
+        <TextView
+            android:id="@+id/drowsyCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            tools:ignore="MissingConstraints" />
+        <TextView
+            android:id="@+id/yellingCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            tools:ignore="MissingConstraints" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
