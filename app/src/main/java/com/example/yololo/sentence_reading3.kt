@@ -84,7 +84,6 @@ class sentence_reading3 : AppCompatActivity() {
             isImageAnalysisActive = false  // 이미지 분석 중지
             stopCamera()  // 카메라 중지
             sendClickNextToServer("버튼 클릭")
-            startActivity(Intent(this, statistic::class.java))
         }
     }
 
@@ -328,6 +327,7 @@ class sentence_reading3 : AppCompatActivity() {
                             putExtra("YELLING_COUNT", yellingCount)
                         }
                         startActivity(intent)
+                        finish() // 현재 액티비티를 종료합니다.
                     }
                 } else {
                     Log.e(TAG, "Failed to send click end event: ${response.code}")
