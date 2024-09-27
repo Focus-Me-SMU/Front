@@ -17,6 +17,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -85,7 +87,19 @@ class Sentence_Reading : AppCompatActivity() {
             sendClickNextToServer("버튼 클릭")
             startActivity(Intent(this, sentence_reading2::class.java))
         }
+        hideSystemBars()
     }
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            // Android 11 (API 30) 이상
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -138,7 +152,7 @@ class Sentence_Reading : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 500 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 150 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()

@@ -134,7 +134,7 @@ class sentence_reading2 : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 500 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 150 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()

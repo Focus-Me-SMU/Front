@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     testImplementation(libs.junit)
     implementation (libs.okhttp)
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation(libs.mpandroidchart)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

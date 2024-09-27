@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/questionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="디지털 시대의 도전으로 언급되지 않은 것은 무엇인가요?"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <RadioGroup
+            android:id="@+id/answerRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/answerA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="a) 프라이버시 문제"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answerB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="b) 사이버 보안 위협"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answerC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="c) 디지털 격차"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answerD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="d) 환경 오염"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/questionTextView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="기술적 복잡성을 헤쳐나가기 위해 사회가 해야 할 일로 언급된 것은?"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/answerRadioGroup1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/answer1A"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="a) 무분별한 혁신 촉진"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer1B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="b) 프라이버시 보호 정책 구현"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer1C"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="c) 기술 사용의 제한"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer1D"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="d) 교육의 폐지"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+        </RadioGroup>
+
+        <!-- 두 번째 문제 -->
+        <TextView
+            android:id="@+id/questionTextView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="기술의 발전으로 얻은 이점이 아닌 것은 무엇인가요?"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/answerRadioGroup2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/answer2A"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="a) 글로벌 연결성의 감소"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer2B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="b) 정보 접근성의 향상"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer2C"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="c) 국경을 넘는 협업의 용이함"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer2D"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="d) 교육, 의료, 상업의 발전"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+        </RadioGroup>
+
+        <!-- 세 번째 문제 -->
+        <TextView
+            android:id="@+id/questionTextView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="디지털 격차를 해소하기 위한 방법으로 제시된 것은?"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/answerRadioGroup3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/answer3A"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="a) 디지털 리터러시와 공평한 접근의 촉진"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer3B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="b) 기술 접근의 제한"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer3C"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="c) 개인 데이터의 공개"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/answer3D"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="d) 사이버 보안 위협 무시"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="제출"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

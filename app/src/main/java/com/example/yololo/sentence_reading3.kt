@@ -2,6 +2,7 @@ package com.example.yololo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -83,8 +84,15 @@ class sentence_reading3 : AppCompatActivity() {
         binding.nextBtn3.setOnClickListener {
             isImageAnalysisActive = false  // 이미지 분석 중지
             stopCamera()  // 카메라 중지
-            sendClickNextToServer("버튼 클릭")
+            moveToQuestionPage()
         }
+    }
+
+    private fun moveToQuestionPage() {
+        Log.d(TAG, "Moving to question page")
+        val intent = Intent(this@sentence_reading3, question::class.java)
+        startActivity(intent)
+        finish() // 현재 액티비티를 종료합니다.
     }
 
     private fun startCamera() {
@@ -138,7 +146,7 @@ class sentence_reading3 : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 500 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 150 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             if (!isImageAnalysisActive) {  // 이미지 분석 활성화 상태 확인
@@ -291,55 +299,6 @@ class sentence_reading3 : AppCompatActivity() {
                     "Permissions not granted by the user.",
                     Toast.LENGTH_SHORT).show()
                 finish()
-            }
-        }
-    }
-
-    private fun sendClickNextToServer(message: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val requestBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
-            val request = Request.Builder()
-                .url("${getString(R.string.server_url)}/click_end")
-                .post(requestBody)
-                .build()
-
-            try {
-                val response = client.newCall(request).execute()
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    Log.d(TAG, "Received response: $responseBody")
-                    val jsonObject = JSONObject(responseBody ?: "{}")
-
-                    // 서버로부터 받은 통계 데이터 처리
-                    val allFrameCount = jsonObject.optInt("all_frame_count", 0)
-                    val lookForwardCount = jsonObject.optInt("Look_Forward_count", 0)
-                    val awakeCount = jsonObject.optInt("awake_count", 0)
-                    val drowsyCount = jsonObject.optInt("drowsy_count", 0)
-                    val yellingCount = jsonObject.optInt("yelling_count", 0)
-
-                    withContext(Dispatchers.Main) {
-                        // 통계 데이터를 다음 액티비티로 전달
-                        val intent = Intent(this@sentence_reading3, statistic::class.java).apply {
-                            putExtra("ALL_FRAME_COUNT", allFrameCount)
-                            putExtra("LOOK_FORWARD_COUNT", lookForwardCount)
-                            putExtra("AWAKE_COUNT", awakeCount)
-                            putExtra("DROWSY_COUNT", drowsyCount)
-                            putExtra("YELLING_COUNT", yellingCount)
-                        }
-                        startActivity(intent)
-                        finish() // 현재 액티비티를 종료합니다.
-                    }
-                } else {
-                    Log.e(TAG, "Failed to send click end event: ${response.code}")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@sentence_reading3, "서버 전송 실패: ${response.code}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error sending click end event", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@sentence_reading3, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
             }
         }
     }

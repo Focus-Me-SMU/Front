@@ -31,6 +31,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".question"
+            android:exported="false" />
+        <activity
+            android:name=".statistic2"
+            android:exported="false" />
+        <activity
             android:name=".statistic"
             android:exported="false" />
         <activity
