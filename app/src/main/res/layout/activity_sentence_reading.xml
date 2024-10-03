@@ -62,10 +62,14 @@
         android:text="다음"
         android:textColor="@color/basic"
         android:textSize="40sp"
-        android:backgroundTint="#4A636261"
-        app:layout_constraintTop_toBottomOf="@id/sentence"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="690dp"
+        android:layout_marginStart="1200dp"
+        android:backgroundTint="#4A636261"
+        android:layout_marginEnd="40dp"
         tools:ignore="MissingConstraints"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

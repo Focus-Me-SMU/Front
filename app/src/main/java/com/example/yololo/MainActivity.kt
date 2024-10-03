@@ -2,6 +2,8 @@ package com.example.yololo
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -34,8 +36,19 @@ class MainActivity : AppCompatActivity() {
         camera.setOnClickListener {
             startActivity(Intent(this, Camera::class.java))
         }
+        hideSystemBars()
     }
 
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            // Android 11 (API 30) 이상
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
     private fun sendClickEventToServer(message: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val requestBody = message.toRequestBody("text/plain".toMediaTypeOrNull())

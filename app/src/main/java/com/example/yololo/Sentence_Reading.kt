@@ -122,7 +122,7 @@ class Sentence_Reading : AppCompatActivity() {
                     })
                 }
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             try {
                 cameraProvider?.unbindAll()
@@ -152,7 +152,7 @@ class Sentence_Reading : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 150 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 300 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             val currentTimestamp = System.currentTimeMillis()
@@ -249,13 +249,6 @@ class Sentence_Reading : AppCompatActivity() {
                             enableNextButton()
                         }
                     }
-                    // sentence_count 업데이트 (UI 업데이트 등)
-                    val sentenceCount = jsonObject.optInt("sentence_count", -1)
-                    if (sentenceCount != -1) {
-                        withContext(Dispatchers.Main) {
-                            updateSentenceCount(sentenceCount)
-                        }
-                    }
                 } else {
                     Log.e(TAG, "Failed to send image: ${response.code}")
                 }
@@ -266,18 +259,9 @@ class Sentence_Reading : AppCompatActivity() {
     }
 
     private fun enableNextButton() {
-        Log.d(TAG, "Enabling next button")
         binding.nextBtn.isEnabled = true
         binding.nextBtn.alpha = 1.0f
         binding.nextBtn.setBackgroundColor(Color.parseColor("#FF636261"))
-
-        Log.d(TAG, "Next button enabled and color changed")
-    }
-
-    private fun updateSentenceCount(count: Int) {
-        // TODO: UI에 sentence_count 반영하는 로직 구현
-        // 예: binding.sentenceCountTextView.text = "Sentence Count: $count"
-        Log.d(TAG, "Updated sentence count: $count")
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

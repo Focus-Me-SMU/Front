@@ -16,6 +16,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -86,13 +88,23 @@ class sentence_reading3 : AppCompatActivity() {
             stopCamera()  // 카메라 중지
             moveToQuestionPage()
         }
+        hideSystemBars()
     }
 
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            // Android 11 (API 30) 이상
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
     private fun moveToQuestionPage() {
         Log.d(TAG, "Moving to question page")
         val intent = Intent(this@sentence_reading3, question::class.java)
         startActivity(intent)
-        finish() // 현재 액티비티를 종료합니다.
     }
 
     private fun startCamera() {
@@ -116,7 +128,7 @@ class sentence_reading3 : AppCompatActivity() {
                     })
                 }
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             try {
                 cameraProvider?.unbindAll()
@@ -146,7 +158,7 @@ class sentence_reading3 : AppCompatActivity() {
 
     private inner class BitmapImageAnalyzer(private val listener: (Bitmap) -> Unit) : ImageAnalysis.Analyzer {
         private var lastProcessedTimestamp = 0L
-        private val processingInterval = 150 // 밀리초 단위, VideoView와 동일하게 설정
+        private val processingInterval = 300 // 밀리초 단위, VideoView와 동일하게 설정
 
         override fun analyze(image: ImageProxy) {
             if (!isImageAnalysisActive) {  // 이미지 분석 활성화 상태 확인
@@ -252,13 +264,6 @@ class sentence_reading3 : AppCompatActivity() {
                             enableNextButton()
                         }
                     }
-                    // sentence_count 업데이트 (UI 업데이트 등)
-                    val sentenceCount = jsonObject.optInt("sentence_count", -1)
-                    if (sentenceCount != -1) {
-                        withContext(Dispatchers.Main) {
-                            updateSentenceCount(sentenceCount)
-                        }
-                    }
                 } else {
                     Log.e(TAG, "Failed to send image: ${response.code}")
                 }
@@ -275,12 +280,6 @@ class sentence_reading3 : AppCompatActivity() {
         binding.nextBtn3.setBackgroundColor(Color.parseColor("#FF636261"))
 
         Log.d(TAG, "Next button enabled and color changed")
-    }
-
-    private fun updateSentenceCount(count: Int) {
-        // TODO: UI에 sentence_count 반영하는 로직 구현
-        // 예: binding.sentenceCountTextView.text = "Sentence Count: $count"
-        Log.d(TAG, "Updated sentence count: $count")
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -309,7 +308,7 @@ class sentence_reading3 : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraXApp3"
+        private const val TAG = "CameraXApp"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
