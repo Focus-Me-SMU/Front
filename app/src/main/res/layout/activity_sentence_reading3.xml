@@ -55,6 +55,19 @@
         android:layout_height="0dp"
         tools:ignore="MissingConstraints" />
 
+    <TextView
+        android:id="@+id/st_count3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="50sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/next_btn3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="690dp"
+        android:backgroundTint="#6D45453C"
+        android:layout_marginEnd="40dp"
+        tools:ignore="MissingConstraints" />
+
     <Button
         android:id="@+id/next_btn3"
         android:layout_width="wrap_content"
@@ -69,6 +82,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="690dp"
         android:layout_marginStart="1200dp"
+        android:layout_marginEnd="40dp"
         tools:ignore="MissingConstraints"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

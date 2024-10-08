@@ -12,6 +12,7 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.YuvImage
 import android.graphics.drawable.GradientDrawable
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -51,6 +52,9 @@ class sentence_reading3 : AppCompatActivity() {
     private val client = OkHttpClient()
     private var cameraProvider: ProcessCameraProvider? = null
     private var isImageAnalysisActive = true
+    private lateinit var mediaPlayer: MediaPlayer
+    private var currentSentenceCount = 0
+    private val maxSentenceCount = 6
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +92,9 @@ class sentence_reading3 : AppCompatActivity() {
             stopCamera()  // 카메라 중지
             moveToQuestionPage()
         }
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.warning_sound)
+
         hideSystemBars()
     }
 
@@ -206,23 +213,7 @@ class sentence_reading3 : AppCompatActivity() {
         }
     }
 
-    private fun showCustomToast(message: String, textColor: Int = Color.WHITE, backgroundColor: Int = Color.BLACK) {
-        val layout = layoutInflater.inflate(R.layout.toast, null)
-        val textView = layout.findViewById<TextView>(R.id.custom_toast_message)
-        textView.text = message
-        textView.setTextColor(textColor)
-        (textView.background as GradientDrawable).setColor(backgroundColor)
-
-        val toast = Toast(applicationContext)
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
-        toast.duration = Toast.LENGTH_LONG
-        toast.view = layout
-        toast.show()
-    }
-
     private fun sendBitmapToServer(bitmap: Bitmap) {
-        if (!isImageAnalysisActive) return
-
         CoroutineScope(Dispatchers.IO).launch {
             val stream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -249,20 +240,14 @@ class sentence_reading3 : AppCompatActivity() {
                     Log.d(TAG, "Received response: $responseBody")
                     val jsonObject = JSONObject(responseBody ?: "{}")
 
-                    val showToast = jsonObject.optBoolean("show_toast", false)
-                    if (showToast) {
-                        val toastMessage = jsonObject.optString("toast_message", "")
-                        withContext(Dispatchers.Main) {
-                            showCustomToast(toastMessage, Color.BLACK, Color.YELLOW)
+                    val showToast = jsonObject.optBoolean("warning_toast", false)
+                    val sentencecount = jsonObject.optInt("sentence_count",0)
+
+                    withContext(Dispatchers.Main) {
+                        if (showToast) {
+                            playWarningSound()
                         }
-                    }
-                    val message = jsonObject.optString("message", "")
-                    Log.d(TAG, "Received message: $message")
-                    if (message == "next") {
-                        Log.d(TAG, "Next message received, enabling button")
-                        withContext(Dispatchers.Main) {
-                            enableNextButton()
-                        }
+                        updateSentenceCount(sentencecount)
                     }
                 } else {
                     Log.e(TAG, "Failed to send image: ${response.code}")
@@ -270,6 +255,22 @@ class sentence_reading3 : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error sending image", e)
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateSentenceCount(count: Int) {
+        currentSentenceCount = count.coerceAtMost(maxSentenceCount)
+        binding.stCount3.text = "$currentSentenceCount/$maxSentenceCount"
+
+        if (currentSentenceCount == maxSentenceCount) {
+            enableNextButton()
+        }
+    }
+
+    private fun playWarningSound() {
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 

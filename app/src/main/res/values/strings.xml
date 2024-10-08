@@ -2,7 +2,7 @@
     <string name="app_name">Yololo</string>
     <string name="sentence"> Technology has revolutionized our lives. With the internet and smartphones, global connectivity is at its peak. Access to information has improved, and collaboration across borders is easier. Education, healthcare, and commerce have evolved, fostering worldwide growth. Yet, this digital era brings both opportunities and challenges that will shape our future.
 </string>
-    <string name="server_url">http://172.16.200.200:5000/upload-frame</string>
+    <string name="server_url">http://172.16.153.162:5000/upload-frame</string>
     <string name="sentence2">However, rapid technological change raises concerns. Privacy issues emerge as personal data is more accessible. Cybersecurity threats grow with our digital dependence. The digital divide highlights inequality between those with technology access and those without. Addressing these issues is crucial to ensure progress benefits all equally.</string>
-    <string name="sentence3">To navigate technological complexities, society must foster responsible innovation. Implementing policies to protect privacy and enhance cybersecurity is essential. Education prepares individuals to adapt to new technologies. Promoting digital literacy and equitable access can bridge the digital divide. Thoughtful technology use will pave the way for a sustainable, inclusive future.</string>
+    <string name="sentence3">To navigate technological complexities, society must foster responsible innovation. Implementing policies to protect privacy and enhance cybersecurity is essential. Education prepares individuals to adapt to new technologies. Promoting digital literacy and equitable access can bridge the digital divide. Thoughtful technology use will pave the way for a sustainable, inclusive and equitable future.</string>
 </resources>

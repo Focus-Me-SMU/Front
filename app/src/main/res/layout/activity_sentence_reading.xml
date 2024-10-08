@@ -55,6 +55,20 @@
         android:layout_height="0dp"
         tools:ignore="MissingConstraints" />
 
+    <TextView
+        android:id="@+id/st_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="50sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/next_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="690dp"
+        android:backgroundTint="#6D45453C"
+        android:layout_marginEnd="40dp"
+        tools:ignore="MissingConstraints" />
+
+
     <Button
         android:id="@+id/next_btn"
         android:layout_width="wrap_content"

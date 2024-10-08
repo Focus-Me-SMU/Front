@@ -4,11 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import com.example.yololo.R.id.camerabtn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,15 +24,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val sentenceCard = findViewById<CardView>(R.id.sentence_cardview)
-        val camera = findViewById<Button>(camerabtn)
 
         sentenceCard.setOnClickListener {
             sendClickEventToServer("문장 집중도 카드 클릭됨")
             startActivity(Intent(this, Sentence_Reading::class.java))
-        }
-
-        camera.setOnClickListener {
-            startActivity(Intent(this, Camera::class.java))
         }
         hideSystemBars()
     }

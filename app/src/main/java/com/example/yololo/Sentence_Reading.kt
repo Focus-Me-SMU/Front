@@ -1,8 +1,6 @@
 package com.example.yololo
 
 import android.Manifest
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,14 +10,12 @@ import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.YuvImage
-import android.graphics.drawable.GradientDrawable
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -29,11 +25,9 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.yololo.VideoView.Companion
 import com.example.yololo.databinding.ActivitySentenceReadingBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable.start
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -51,6 +45,9 @@ class Sentence_Reading : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private val client = OkHttpClient()
     private var cameraProvider: ProcessCameraProvider? = null
+    private lateinit var mediaPlayer: MediaPlayer
+    private var currentSentenceCount = 0
+    private val maxSentenceCount = 6
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +84,9 @@ class Sentence_Reading : AppCompatActivity() {
             sendClickNextToServer("버튼 클릭")
             startActivity(Intent(this, sentence_reading2::class.java))
         }
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.warning_sound)
+
         hideSystemBars()
     }
     private fun hideSystemBars() {
@@ -99,7 +99,6 @@ class Sentence_Reading : AppCompatActivity() {
             }
         }
     }
-
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -195,20 +194,6 @@ class Sentence_Reading : AppCompatActivity() {
         }
     }
 
-    private fun showCustomToast(message: String, textColor: Int = Color.WHITE, backgroundColor: Int = Color.BLACK) {
-        val layout = layoutInflater.inflate(R.layout.toast, null)
-        val textView = layout.findViewById<TextView>(R.id.custom_toast_message)
-        textView.text = message
-        textView.setTextColor(textColor)
-        (textView.background as GradientDrawable).setColor(backgroundColor)
-
-        val toast = Toast(applicationContext)
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
-        toast.duration = Toast.LENGTH_LONG
-        toast.view = layout
-        toast.show()
-    }
-
     private fun sendBitmapToServer(bitmap: Bitmap) {
         CoroutineScope(Dispatchers.IO).launch {
             val stream = ByteArrayOutputStream()
@@ -236,18 +221,14 @@ class Sentence_Reading : AppCompatActivity() {
                     Log.d(TAG, "Received response: $responseBody")
                     val jsonObject = JSONObject(responseBody ?: "{}")
 
-                    val showToast = jsonObject.optBoolean("show_toast", false)
-                    if (showToast) {
-                        val toastMessage = jsonObject.optString("toast_message", "")
-                        withContext(Dispatchers.Main) {
-                            showCustomToast(toastMessage, Color.BLACK, Color.YELLOW)
+                    val showToast = jsonObject.optBoolean("warning_toast", false)
+                    val sentencecount = jsonObject.optInt("sentence_count",0)
+
+                    withContext(Dispatchers.Main) {
+                        if (showToast) {
+                            playWarningSound()
                         }
-                    }
-                    val message = jsonObject.optString("message", "")
-                    if (message == "next") {
-                        withContext(Dispatchers.Main) {
-                            enableNextButton()
-                        }
+                        updateSentenceCount(sentencecount)
                     }
                 } else {
                     Log.e(TAG, "Failed to send image: ${response.code}")
@@ -255,6 +236,22 @@ class Sentence_Reading : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error sending image", e)
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateSentenceCount(count: Int) {
+        currentSentenceCount = count.coerceAtMost(maxSentenceCount)
+        binding.stCount.text = "$currentSentenceCount/$maxSentenceCount"
+
+        if (currentSentenceCount == maxSentenceCount) {
+            enableNextButton()
+        }
+    }
+
+    private fun playWarningSound() {
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 
@@ -296,14 +293,14 @@ class Sentence_Reading : AppCompatActivity() {
                 val response = client.newCall(request).execute()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        Toast.makeText(this@Sentence_Reading, "클릭 정보가 서버로 전송되었습니다.", Toast.LENGTH_SHORT).show()
+                        // 성공 처리 (필요한 경우)
                     } else {
-                        Toast.makeText(this@Sentence_Reading, "서버 전송 실패: ${response.code}", Toast.LENGTH_SHORT).show()
+                        // 실패 처리 (필요한 경우)
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@Sentence_Reading, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // 예외 처리 (필요한 경우)
                 }
             }
         }
